@@ -2,12 +2,15 @@ GEM
   remote: https://rubygems.org/
   specs:
     backports (3.6.8)
+    erubis (2.7.0)
+    minitest (5.9.0)
     multi_json (1.12.1)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
+    redcarpet (3.3.4)
     sinatra (1.4.7)
       rack (~> 1.5)
       rack-protection (~> 1.4)
@@ -25,6 +28,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  erubis
+  minitest
+  redcarpet
   sinatra
   sinatra-contrib
 

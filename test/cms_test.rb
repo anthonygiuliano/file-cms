@@ -18,16 +18,16 @@ class CMSTest < Minitest::Test
   def test_index
     get '/'
     assert_equal 200, last_response.status
-    assert_match "about.txt", last_response.body
-    assert_match "changes.txt", last_response.body
-    assert_match "history.txt", last_response.body
+    assert_match 'about.md', last_response.body
+    assert_match 'changes.txt', last_response.body
+    assert_match 'history.txt', last_response.body
   end
 
   def test_text_file
     get '/history.txt'
     assert_equal 200, last_response.status
-    assert_equal "text/plain", last_response["Content-Type"]
-    assert_match "Lorem ipsum dolor sit amet", last_response.body
+    assert_equal 'text/plain', last_response['Content-Type']
+    assert_match 'Lorem ipsum dolor sit amet', last_response.body
   end
 
   def test_document_not_found
@@ -37,6 +37,13 @@ class CMSTest < Minitest::Test
     get last_response["Location"]
 
     assert_equal 200, last_response.status
-    assert_includes last_response.body, "notafile.ext does not exist"
+    assert_includes last_response.body, 'notafile.ext does not exist'
+  end
+
+  def test_markdown_file
+    get '/about.md'
+    assert_equal 200, last_response.status
+    assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
+    assert_includes last_response.body, '<h1>'
   end
 end

@@ -1,8 +1,3 @@
-<% if session[:message] %>
-  <p><%= session.delete(:message) %></p>
-<% end %>
-
-<h3><%= root %></h3>
 <ul>
   <% @files.each do |file| %>
     <li>

@@ -117,7 +117,7 @@ post "/users/signin" do
 end
 
 post "/users/signout" do
-  session[:username] = nil
+  session.delete(:username)
   session[:message] = "You have been signed out."
   redirect "/"
 end

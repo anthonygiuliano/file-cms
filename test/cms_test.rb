@@ -122,4 +122,25 @@ class CMSTest < Minitest::Test
     assert_equal 422, last_response.status
     assert_includes last_response.body, "A name is required"
   end
+
+  def test_delete_link
+    create_document "about.md"
+
+    get "/"
+    assert_includes last_response.body, "Delete"
+  end
+
+  def test_delete_document
+    create_document "about.md"
+
+    get "/about.md/delete"
+    assert_equal 302, last_response.status
+
+    follow_redirect!
+
+    assert_includes last_response.body, "about.md has been deleted"
+
+    get "/"
+    refute_includes last_response.body, "about.md"
+  end
 end

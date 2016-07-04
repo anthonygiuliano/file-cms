@@ -25,6 +25,10 @@ class CMSTest < Minitest::Test
     FileUtils.rm_rf(data_path)
   end
 
+  def session
+    last_request.env["rack.session"]
+  end
+
   def create_document(name, content = "")
     File.open(File.join(data_path, name), "w") do |file|
       file.write(content)
@@ -67,11 +71,7 @@ class CMSTest < Minitest::Test
     get "/notafile.ext"
 
     assert_equal 302, last_response.status
-
-    get last_response["Location"]
-
-    assert_equal 200, last_response.status
-    assert_includes last_response.body, "notafile.ext does not exist"
+    assert_equal "notafile.ext does not exist.", session[:message]
   end
 
   def test_editing_document
@@ -88,10 +88,8 @@ class CMSTest < Minitest::Test
     post "/changes.txt", content: "new content"
 
     assert_equal 302, last_response.status
-
-    get last_response["Location"]
-
-    assert_includes last_response.body, "changes.txt has been updated"
+    assert_equal "changes.txt has been updated.", session[:message]
+    follow_redirect!
 
     get "/changes.txt"
     assert_equal 200, last_response.status
@@ -109,9 +107,7 @@ class CMSTest < Minitest::Test
   def test_create_new_document
     post "/create", filename: "test.txt"
     assert_equal 302, last_response.status
-
-    get last_response["Location"]
-    assert_includes last_response.body, "test.txt has been created"
+    assert_equal "test.txt has been created.", session[:message]
 
     get "/"
     assert_includes last_response.body, "test.txt"
@@ -135,13 +131,10 @@ class CMSTest < Minitest::Test
 
     post "/about.md/delete"
     assert_equal 302, last_response.status
-
-    follow_redirect!
-
-    assert_includes last_response.body, "about.md has been deleted"
+    assert_equal "about.md has been deleted.", session[:message]
 
     get "/"
-    refute_includes last_response.body, "about.md"
+    refute_includes last_response.body, %q(<a href="/about.md">)
   end
 
   def test_signin_form
@@ -155,10 +148,10 @@ class CMSTest < Minitest::Test
   def test_successful_signin
     post "/users/signin", username: "admin", password: "secret"
     assert_equal 302, last_response.status
+    assert_equal "Welcome!", session[:message]
+    assert_equal "admin", session[:username]
 
     follow_redirect!
-
-    assert_includes last_response.body, "Welcome"
     assert_includes last_response.body, "Signed in as"
   end
 
@@ -167,6 +160,7 @@ class CMSTest < Minitest::Test
     assert_equal 422, last_response.status
 
     assert_includes last_response.body, "wrong_user_name"
+    assert_equal nil, session[:username]
     assert_includes last_response.body, "Invalid credentials"
   end
 

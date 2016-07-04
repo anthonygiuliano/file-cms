@@ -40,10 +40,6 @@ get "/" do
   erb :index
 end
 
-get "/new" do
-  erb :new
-end
-
 post "/create" do
   filename = params[:filename].to_s
 
@@ -62,6 +58,7 @@ post "/create" do
 end
 
 get "/:filename" do
+  pass if params[:filename] == 'new'
   file_path = File.join(data_path, params[:filename])
 
   if File.exist?(file_path)
@@ -97,6 +94,10 @@ post "/:filename/delete" do
 
   session[:message] = "#{params[:filename]} has been deleted."
   redirect "/"
+end
+
+get "/new" do
+  erb :new
 end
 
 get "/users/signin" do
